@@ -3,6 +3,7 @@ import { Restaurant } from '../models/restaurant.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+
 @Injectable()
 export class RestaurantsService {
   constructor(
@@ -57,6 +58,17 @@ export class RestaurantsService {
     }
   }
 
+
+
+
+  async getRestaurantsByChef(chefName: string) {
+    const restaurants = await this.restaurantModel
+      .find({ chefName: { $regex: new RegExp(chefName, 'i') } })
+      .exec();
+
+    return restaurants.map((res) => this.mapRestaurantToResponse(res));
+  }
+
   private mapRestaurantToResponse(restaurant: Restaurant) {
     return {
       id: restaurant.id,
@@ -67,4 +79,6 @@ export class RestaurantsService {
       dishes: restaurant.dishes,
     };
   }
+
+  
 }

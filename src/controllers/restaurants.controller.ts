@@ -38,4 +38,11 @@ export class RestaurantsController {
   getRestaurant(@Param('id') resId: string) {
     return this.restaurantsService.getSingleRestaurant(resId);
   }
+
+  @Get('/chefs/:chefName')
+  async getRestaurantsByChefName(@Param('chefName') chefName: string) {
+    const restaurants =
+      await this.restaurantsService.getRestaurantsByChef(chefName);
+    return restaurants;
+  }
 }
