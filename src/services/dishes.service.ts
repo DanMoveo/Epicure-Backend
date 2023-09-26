@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
 import { Dish } from '../models/dish.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -24,47 +23,74 @@ export class DishesService {
     icons: string[],
     restaurantId: string,
   ) {
-    console.log('Received restaurantId:', restaurantId);
-
-    const restaurant = await this.restaurantModel.findById(restaurantId);
-
-    if (!restaurant) {
-      console.log('Restaurant not found.');
-      throw new NotFoundException('Could not find restaurant.');
-    }
-
-    console.log('Restaurant found:', restaurant);
+    const restaurant = await this.findRestaurantById(restaurantId);
 
     const newDish = new this.dishModel({
-      image: image,
-      name: name,
-      description: description,
-      price: price,
-      category: category,
-      icons: icons,
+      image,
+      name,
+      description,
+      price,
+      category,
+      icons,
       restaurant: restaurantId,
     });
-    console.log('Creating new Dish:', newDish);
 
     const result = await newDish.save();
-    console.log('Dish saved:', result);
-
     const dishId = result.id;
-    await this.restaurantModel.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(restaurantId),
-      {
-        $push: { dishes: dishId },
-      },
-    );
 
-    console.log('Restaurant updated with new Dish.');
+    await this.updateRestaurantWithDish(restaurantId, dishId);
 
     return dishId as string;
   }
 
   async getDishes() {
     const dishes = await this.dishModel.find().exec();
-    return dishes.map((dish) => ({
+    return dishes.map((dish) => this.mapDishToResponse(dish));
+  }
+
+  async getSingleDish(dishId: string) {
+    const dish = await this.findDish(dishId);
+    return this.mapDishToResponse(dish);
+  }
+
+  async getDishesByCategoryAndRestaurant(
+    category: string,
+    restaurantId: string,
+  ) {
+    const dishes = await this.dishModel
+      .find({ category, restaurant: restaurantId })
+      .exec();
+
+    return dishes.map((dish) => this.mapDishToResponse(dish));
+  }
+
+  private async findRestaurantById(restaurantId: string) {
+    const restaurant = await this.restaurantModel.findById(restaurantId);
+    if (!restaurant) {
+      throw new NotFoundException('Could not find restaurant.');
+    }
+    return restaurant;
+  }
+
+  private async updateRestaurantWithDish(restaurantId: string, dishId: string) {
+    await this.restaurantModel.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(restaurantId),
+      {
+        $push: { dishes: dishId },
+      },
+    );
+  }
+
+  private async findDish(id: string): Promise<Dish> {
+    const dish = await this.dishModel.findById(id);
+    if (!dish) {
+      throw new NotFoundException('Could not find dish.');
+    }
+    return dish;
+  }
+
+  private mapDishToResponse(dish: Dish) {
+    return {
       id: dish.id,
       image: dish.image,
       name: dish.name,
@@ -73,24 +99,6 @@ export class DishesService {
       category: dish.category,
       icons: dish.icons,
       restaurantId: dish.restaurant,
-    }));
-  }
-
-  async getSingleDish(dishId: string) {
-    const dish = await this.findDish(dishId);
-    return dish;
-  }
-
-  private async findDish(id: string): Promise<Dish> {
-    let dish: Dish;
-    try {
-      dish = await this.dishModel.findById(id);
-    } catch (error) {
-      throw new NotFoundException('Could not find dish.');
-    }
-    if (!dish) {
-      throw new NotFoundException('Could not find dish.');
-    }
-    return dish.toObject();
+    };
   }
 }

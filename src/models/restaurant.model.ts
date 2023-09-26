@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose';
 
+
+
 export const RestaurantSchema = new mongoose.Schema({
   image: { type: String, required: true },
   name: { type: String, required: true },

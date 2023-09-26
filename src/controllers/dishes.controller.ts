@@ -33,6 +33,24 @@ export class DishesController {
     return dishes;
   }
 
+  @Get('breakfast/:restaurantId')
+  async getBreakfastDishesByRestaurant(@Param('restaurantId') restaurantId: string) {
+    const breakfastDishes = await this.dishesService.getDishesByCategoryAndRestaurant('Breakfast', restaurantId);
+    return breakfastDishes;
+  }
+
+  @Get('dinner/:restaurantId')
+  async getDinnerDishesByRestaurant(@Param('restaurantId') restaurantId: string) {
+    const dinnerDishes = await this.dishesService.getDishesByCategoryAndRestaurant('Dinner', restaurantId);
+    return dinnerDishes;
+  }
+
+  @Get('lunch/:restaurantId')
+  async getLunchDishesByRestaurant(@Param('restaurantId') restaurantId: string) {
+    const lunchDishes = await this.dishesService.getDishesByCategoryAndRestaurant('Lunch', restaurantId);
+    return lunchDishes;
+  }
+
   @Get(':id')
   getDish(@Param('id') dishId: string) {
     return this.dishesService.getSingleDish(dishId);
