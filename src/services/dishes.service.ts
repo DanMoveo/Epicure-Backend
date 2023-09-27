@@ -1,46 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Dish } from '../models/dish.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Restaurant } from 'src/models/restaurant.model';
-import mongoose from 'mongoose';
+import { Dish } from '../models/dish.model';
+import { Restaurant } from '../models/restaurant.model';
+import { CreateDishDto, UpdateDishDto } from '../dto/dishes.dto';
 
 @Injectable()
 export class DishesService {
   constructor(
-    @InjectModel('Dish')
-    private readonly dishModel: Model<Dish>,
+    @InjectModel('Dish') private readonly dishModel: Model<Dish>,
     @InjectModel('Restaurant')
     private readonly restaurantModel: Model<Restaurant>,
   ) {}
 
-  async insertDish(
-    image: string,
-    name: string,
-    description: string,
-    price: number,
-    category: string,
-    icons: string[],
-    restaurantId: string,
-  ) {
-    const restaurant = await this.findRestaurantById(restaurantId);
+  async insertDish(createDishDto: CreateDishDto) {
+    const { image, name, description, price, category, icons, restaurantId } =
+      createDishDto;
 
-    const newDish = new this.dishModel({
-      image,
-      name,
-      description,
-      price,
-      category,
-      icons,
-      restaurant: restaurantId,
-    });
+    {
+      const newDish = new this.dishModel({
+        image,
+        name,
+        description,
+        price,
+        category,
+        icons,
+        restaurant: restaurantId,
+      });
 
-    const result = await newDish.save();
-    const dishId = result.id;
+      const result = await newDish.save();
+      const dishId = result.id;
 
-    await this.updateRestaurantWithDish(restaurantId, dishId);
+      await this.updateRestaurantWithDish(restaurantId, dishId);
 
-    return dishId as string;
+      return dishId as string;
+    }
   }
 
   async getDishes() {
@@ -60,25 +54,41 @@ export class DishesService {
     const dishes = await this.dishModel
       .find({ category, restaurant: restaurantId })
       .exec();
-
+    if (!dishes || dishes.length === 0) {
+      throw new NotFoundException(
+        'Could not find dishes for the specified category and restaurant.',
+      );
+    }
     return dishes.map((dish) => this.mapDishToResponse(dish));
   }
 
-  private async findRestaurantById(restaurantId: string) {
-    const restaurant = await this.restaurantModel.findById(restaurantId);
-    if (!restaurant) {
-      throw new NotFoundException('Could not find restaurant.');
+  async updateDish(dishId: string, updateDishDto: UpdateDishDto) {
+    const { image, name, description, price, category, icons, restaurantId } =
+      updateDishDto;
+
+    {
+      const updatedDish = await this.findDish(dishId);
+      updatedDish.image = image;
+      updatedDish.name = name;
+      updatedDish.description = description;
+      updatedDish.price = price;
+      updatedDish.category = category;
+      updatedDish.icons = icons;
+
+      await updatedDish.save();
+      return this.mapDishToResponse(updatedDish);
     }
-    return restaurant;
+  }
+
+  async deleteDish(dishId: string) {
+    await this.dishModel.findByIdAndDelete(dishId);
+    return { message: 'Dish deleted successfully' };
   }
 
   private async updateRestaurantWithDish(restaurantId: string, dishId: string) {
-    await this.restaurantModel.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(restaurantId),
-      {
-        $push: { dishes: dishId },
-      },
-    );
+    await this.restaurantModel.findByIdAndUpdate(restaurantId, {
+      $push: { dishes: dishId },
+    });
   }
 
   private async findDish(id: string): Promise<Dish> {

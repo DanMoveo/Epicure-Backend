@@ -1,23 +1,27 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { RestaurantsService } from '../services/restaurants.service';
+import {
+  CreateRestaurantDto,
+  UpdateRestaurantDto,
+} from '../dto/restaurant.dto';
 
 @Controller('restaurants')
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Post()
-  async addRestaurants(
-    @Body('image') resImage: string,
-    @Body('name') resName: string,
-    @Body('chefName') resChef: string,
-    @Body('rate') resRate: number,
-  ) {
-    const generatedId = await this.restaurantsService.insertRestaurant(
-      resImage,
-      resName,
-      resChef,
-      resRate,
-    );
+  async addRestaurant(@Body() createRestaurantDto: CreateRestaurantDto) {
+    const generatedId =
+      await this.restaurantsService.insertRestaurant(createRestaurantDto);
     return { id: generatedId };
   }
 
@@ -34,15 +38,48 @@ export class RestaurantsController {
     return popularRestaurants;
   }
 
-  @Get(':id')
-  getRestaurant(@Param('id') resId: string) {
+  @Get('restaurant')
+  async getDishesByRestaurantAndCategory(
+    @Query('restaurantId') restaurantId: string,
+    @Query('category') category: string,
+  ) {
+    if (!restaurantId || !category) {
+      throw new BadRequestException(
+        'Both restaurantId and category are required.',
+      );
+    }
+
+    const restaurants =
+      await this.restaurantsService.getDishesByRestaurantAndCategory(
+        restaurantId,
+        category,
+      );
+
+    return restaurants;
+  }
+
+  @Get()
+  getRestaurant(@Query('id') resId: string) {
     return this.restaurantsService.getSingleRestaurant(resId);
   }
 
-  @Get('/chefs/:chefName')
-  async getRestaurantsByChefName(@Param('chefName') chefName: string) {
+  @Get('/chefs')
+  async getRestaurantsByChefName(@Query('chefName') chefName: string) {
     const restaurants =
       await this.restaurantsService.getRestaurantsByChef(chefName);
     return restaurants;
+  }
+  
+  @Put(':id')
+  async updateRestaurant(
+    @Query('id') resId: string,
+    @Body() updateRestaurantDto: UpdateRestaurantDto,
+  ) {
+    return this.restaurantsService.updateRestaurant(resId, updateRestaurantDto);
+  }
+
+  @Delete('restaurant')
+  async deleteRestaurant(@Query('id') resId: string) {
+    return this.restaurantsService.deleteRestaurnt(resId);
   }
 }
