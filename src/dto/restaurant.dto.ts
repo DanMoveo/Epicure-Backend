@@ -10,7 +10,7 @@ export class CreateRestaurantDto {
   name: string;
 
   @IsString()
-  chefName: string;
+  chefId: string;
 
   @IsNumber()
   rate: number;
@@ -24,7 +24,7 @@ export class UpdateRestaurantDto {
   name: string;
 
   @IsString()
-  chefName: string;
+  chefId: string;
 
   @IsNumber()
   rate: number;

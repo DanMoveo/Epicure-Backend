@@ -6,6 +6,7 @@ import {
   Put,
   Delete,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { DishesService } from 'src/services/dishes.service';
 import { CreateDishDto, UpdateDishDto } from '../dto/dishes.dto';
@@ -16,19 +17,37 @@ export class DishesController {
 
   @Post()
   async addDish(@Body() createDishDto: CreateDishDto) {
-    const generatedId = await this.dishesService.insertDish(createDishDto);
-    return { id: generatedId };
+    try {
+      const generatedId = await this.dishesService.insertDish(createDishDto);
+      return { id: generatedId };
+    } catch (error) {
+      throw new BadRequestException('Failed to add dish');
+    }
   }
 
   @Get()
   async getAllDishes() {
-    const dishes = await this.dishesService.getDishes();
-    return dishes;
+    try {
+      const dishes = await this.dishesService.getDishes();
+      return dishes;
+    } catch (error) {
+      throw new BadRequestException('Failed to get all dishes');
+    }
   }
 
   @Get('dish')
-  getDish(@Query('id') dishId: string) {
-    return this.dishesService.getSingleDish(dishId);
+  async getDish(@Query('id') dishId: string) {
+    try {
+      const dish = await this.dishesService.getSingleDish(dishId);
+
+      if (!dish) {
+        throw new BadRequestException('Dish not found');
+      }
+
+      return dish;
+    } catch (error) {
+      throw new BadRequestException('Failed to get dish');
+    }
   }
 
   @Put('dish')
@@ -36,11 +55,34 @@ export class DishesController {
     @Query('id') dishId: string,
     @Body() updateDishDto: UpdateDishDto,
   ) {
-    return this.dishesService.updateDish(dishId, updateDishDto);
+    try {
+      const updatedDish = await this.dishesService.updateDish(
+        dishId,
+        updateDishDto,
+      );
+
+      if (!updatedDish) {
+        throw new BadRequestException('Dish not found');
+      }
+
+      return updatedDish;
+    } catch (error) {
+      throw new BadRequestException('Failed to update dish');
+    }
   }
 
   @Delete('dish')
   async deleteDish(@Query('id') dishId: string) {
-    return this.dishesService.deleteDish(dishId);
+    try {
+      const result = await this.dishesService.deleteDish(dishId);
+
+      if (!result) {
+        throw new BadRequestException('Dish not found');
+      }
+
+      return { message: 'Dish deleted successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to delete dish');
+    }
   }
 }

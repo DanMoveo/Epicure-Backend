@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { Dish } from '../models/dish.model';
 import { Restaurant } from '../models/restaurant.model';
 import { CreateDishDto, UpdateDishDto } from '../dto/dishes.dto';
@@ -17,7 +17,7 @@ export class DishesService {
     const { image, name, description, price, category, icons, restaurantId } =
       createDishDto;
 
-    {
+    try {
       const newDish = new this.dishModel({
         image,
         name,
@@ -34,40 +34,66 @@ export class DishesService {
       await this.updateRestaurantWithDish(restaurantId, dishId);
 
       return dishId as string;
+    } catch (error) {
+      throw new Error('Failed to add dish');
     }
   }
 
   async getDishes() {
-    const dishes = await this.dishModel.find().exec();
-    return dishes.map((dish) => this.mapDishToResponse(dish));
+    try {
+      const dishes = await this.dishModel.find().exec();
+      return dishes.map((dish) => this.mapDishToResponse(dish));
+    } catch (error) {
+      throw new Error('Failed to get all dishes');
+    }
   }
 
   async getSingleDish(dishId: string) {
-    const dish = await this.findDish(dishId);
-    return this.mapDishToResponse(dish);
+    try {
+      const dish = await this.findDish(dishId);
+
+      if (!dish) {
+        throw new Error('Dish not found');
+      }
+
+      return this.mapDishToResponse(dish);
+    } catch (error) {
+      throw new Error('Failed to get dish');
+    }
   }
 
   async getDishesByCategoryAndRestaurant(
     category: string,
     restaurantId: string,
   ) {
-    const dishes = await this.dishModel
-      .find({ category, restaurant: restaurantId })
-      .exec();
-    if (!dishes || dishes.length === 0) {
-      throw new NotFoundException(
-        'Could not find dishes for the specified category and restaurant.',
-      );
+    try {
+      const dishes = await this.dishModel
+        .find({ category, restaurant: restaurantId })
+        .exec();
+
+      if (!dishes || dishes.length === 0) {
+        throw new Error(
+          'Could not find dishes for the specified category and restaurant.',
+        );
+      }
+
+      return dishes.map((dish) => this.mapDishToResponse(dish));
+    } catch (error) {
+      throw new Error('Failed to get dishes by category and restaurant');
     }
-    return dishes.map((dish) => this.mapDishToResponse(dish));
   }
 
   async updateDish(dishId: string, updateDishDto: UpdateDishDto) {
-    const { image, name, description, price, category, icons, restaurantId } =
+    const { image, name, description, price, category, icons } =
       updateDishDto;
 
-    {
+    try {
       const updatedDish = await this.findDish(dishId);
+
+      if (!updatedDish) {
+        throw new Error('Dish not found');
+      }
+
       updatedDish.image = image;
       updatedDish.name = name;
       updatedDish.description = description;
@@ -77,12 +103,23 @@ export class DishesService {
 
       await updatedDish.save();
       return this.mapDishToResponse(updatedDish);
+    } catch (error) {
+      throw new Error('Failed to update dish');
     }
   }
 
   async deleteDish(dishId: string) {
-    await this.dishModel.findByIdAndDelete(dishId);
-    return { message: 'Dish deleted successfully' };
+    try {
+      const result = await this.dishModel.findByIdAndDelete(dishId);
+
+      if (!result) {
+        throw new Error('Dish not found');
+      }
+
+      return { message: 'Dish deleted successfully' };
+    } catch (error) {
+      throw new Error('Failed to delete dish');
+    }
   }
 
   private async updateRestaurantWithDish(restaurantId: string, dishId: string) {
@@ -91,12 +128,13 @@ export class DishesService {
     });
   }
 
-  private async findDish(id: string): Promise<Dish> {
-    const dish = await this.dishModel.findById(id);
-    if (!dish) {
-      throw new NotFoundException('Could not find dish.');
+  private async findDish(id: string): Promise<Dish | null> {
+    try {
+      const dish = await this.dishModel.findById(id);
+      return dish;
+    } catch (error) {
+      return null;
     }
-    return dish;
   }
 
   private mapDishToResponse(dish: Dish) {

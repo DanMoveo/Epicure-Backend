@@ -20,66 +20,109 @@ export class RestaurantsController {
 
   @Post()
   async addRestaurant(@Body() createRestaurantDto: CreateRestaurantDto) {
-    const generatedId =
-      await this.restaurantsService.insertRestaurant(createRestaurantDto);
-    return { id: generatedId };
+    try {
+      const generatedId =
+        await this.restaurantsService.insertRestaurant(createRestaurantDto);
+      return { id: generatedId };
+    } catch (error) {
+      throw new BadRequestException('Failed to add restaurant');
+    }
   }
 
   @Get()
   async getAllRestaurants() {
-    const restaurants = await this.restaurantsService.getRestaurants();
-    return restaurants;
+    try {
+      const restaurants = await this.restaurantsService.getRestaurants();
+      return restaurants;
+    } catch (error) {
+      throw new BadRequestException('Failed to get all restaurants');
+    }
   }
 
   @Get('mostPopular')
   async getMostPopularRestaurants() {
-    const popularRestaurants =
-      await this.restaurantsService.getMostPopularRestaurants();
-    return popularRestaurants;
+    try {
+      const popularRestaurants =
+        await this.restaurantsService.getMostPopularRestaurants();
+      return popularRestaurants;
+    } catch (error) {
+      throw new BadRequestException('Failed to get most popular restaurants');
+    }
   }
 
   @Get('restaurant')
+  async getRestaurant(@Query('id') resId: string) {
+    try {
+      const restaurant =
+        await this.restaurantsService.getSingleRestaurant(resId);
+      return restaurant;
+    } catch (error) {
+      throw new BadRequestException('Failed to get all restaurants');
+    }
+  }
+
+  @Get('chef')
+  async getRestaurantsByChefName(@Query('chefName') chefName: string) {
+    return this.restaurantsService.getRestaurantsByChefName(chefName);
+  }
+
+  @Get('restaurant/dishes')
   async getDishesByRestaurantAndCategory(
     @Query('restaurantId') restaurantId: string,
     @Query('category') category: string,
   ) {
-    if (!restaurantId || !category) {
+    try {
+      if (!restaurantId || !category) {
+        throw new BadRequestException(
+          'Both restaurantId and category are required.',
+        );
+      }
+
+      const restaurants =
+        await this.restaurantsService.getDishesByRestaurantAndCategory(
+          restaurantId,
+          category,
+        );
+
+      return restaurants;
+    } catch (error) {
       throw new BadRequestException(
-        'Both restaurantId and category are required.',
+        'Failed to get dishes by restaurant and category',
       );
     }
-
-    const restaurants =
-      await this.restaurantsService.getDishesByRestaurantAndCategory(
-        restaurantId,
-        category,
-      );
-
-    return restaurants;
   }
 
-  @Get()
-  getRestaurant(@Query('id') resId: string) {
-    return this.restaurantsService.getSingleRestaurant(resId);
-  }
-
-  @Get('/chefs')
-  async getRestaurantsByChefName(@Query('chefName') chefName: string) {
-    const restaurants =
-      await this.restaurantsService.getRestaurantsByChef(chefName);
-    return restaurants;
-  }
-  
   @Put(':id')
   async updateRestaurant(
     @Query('id') resId: string,
     @Body() updateRestaurantDto: UpdateRestaurantDto,
   ) {
-    return this.restaurantsService.updateRestaurant(resId, updateRestaurantDto);
+    try {
+      const updatedRestaurant = await this.restaurantsService.updateRestaurant(
+        resId,
+        updateRestaurantDto,
+      );
+      if (!updatedRestaurant) {
+        throw new BadRequestException('Restaurant not found');
+      }
+      return updatedRestaurant;
+    } catch (error) {
+      throw new BadRequestException('Failed to update restaurant');
+    }
   }
 
   @Delete('restaurant')
   async deleteRestaurant(@Query('id') resId: string) {
-    return this.restaurantsService.deleteRestaurnt(resId);
+    try {
+      const result = await this.restaurantsService.deleteRestaurnt(resId);
+
+      if (!result) {
+        throw new BadRequestException('Restaurant not found');
+      }
+
+      return { message: 'Restaurant deleted successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to delete restaurant');
+    }
   }
 }

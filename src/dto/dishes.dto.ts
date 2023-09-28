@@ -1,6 +1,6 @@
-// src/dishes/dishes.dto.ts
+// dishes.dto.ts
 
-import { IsString, IsNumber, ArrayNotEmpty, IsArray } from 'class-validator';
+import { IsString, ArrayNotEmpty, IsArray, IsNumber } from 'class-validator';
 
 export class CreateDishDto {
   @IsString()
