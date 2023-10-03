@@ -9,8 +9,6 @@ export class CreateChefDto {
   @IsString()
   name: string;
 
-  @IsArray()
-  restaurantIds: string[];
 }
 
 export class UpdateChefDto {
@@ -19,7 +17,5 @@ export class UpdateChefDto {
 
   @IsString()
   name: string;
-
-  @IsArray()
-  restaurantIds: string[];
+  
 }

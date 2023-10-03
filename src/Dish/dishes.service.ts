@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Dish } from '../models/dish.model';
-import { Restaurant } from '../models/restaurant.model';
-import { CreateDishDto, UpdateDishDto } from '../dto/dishes.dto';
+import { Dish } from './dish.model';
+import { Restaurant } from '../Restaurant/restaurant.model';
+import { CreateDishDto, UpdateDishDto } from './dishes.dto';
 
 @Injectable()
 export class DishesService {
@@ -84,8 +84,7 @@ export class DishesService {
   }
 
   async updateDish(dishId: string, updateDishDto: UpdateDishDto) {
-    const { image, name, description, price, category, icons } =
-      updateDishDto;
+    const { image, name, description, price, category, icons } = updateDishDto;
 
     try {
       const updatedDish = await this.findDish(dishId);

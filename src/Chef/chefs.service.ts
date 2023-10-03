@@ -1,20 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Chef } from '../models/chef.model';
-import { CreateChefDto, UpdateChefDto } from '../dto/chefs.dto';
+import { Chef } from './chef.model';
+import { CreateChefDto, UpdateChefDto } from './chefs.dto';
 
 @Injectable()
 export class ChefsService {
   constructor(@InjectModel('Chef') private readonly chefModel: Model<Chef>) {}
 
   async insertChef(createChefDto: CreateChefDto) {
-    const { image, name, restaurantIds } = createChefDto;
+    const { image, name } = createChefDto;
 
     const newChef = new this.chefModel({
       image,
       name,
-      restaurantIds,
     });
     try {
       const result = await newChef.save();
@@ -89,7 +88,6 @@ export class ChefsService {
     return {
       id: chef.id,
       name: chef.name,
-      restaurantIds: chef.restaurantIds,
     };
   }
 }

@@ -4,15 +4,13 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
-import { RestaurantsService } from '../services/restaurants.service';
-import {
-  CreateRestaurantDto,
-  UpdateRestaurantDto,
-} from '../dto/restaurant.dto';
+import { RestaurantsService } from './restaurants.service';
+import { CreateRestaurantDto, UpdateRestaurantDto } from './restaurant.dto';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -50,14 +48,19 @@ export class RestaurantsController {
     }
   }
 
-  @Get('restaurant')
-  async getRestaurant(@Query('id') resId: string) {
+  @Get('restaurant/:id')
+  async getRestaurant(@Param('id') resId: string) {
     try {
       const restaurant =
         await this.restaurantsService.getSingleRestaurant(resId);
+
+      if (!restaurant) {
+        throw new BadRequestException('Restaurant not found');
+      }
+
       return restaurant;
     } catch (error) {
-      throw new BadRequestException('Failed to get all restaurants');
+      throw new BadRequestException('Failed to get restaurant');
     }
   }
 
@@ -66,31 +69,17 @@ export class RestaurantsController {
     return this.restaurantsService.getRestaurantsByChefName(chefName);
   }
 
-  @Get('restaurant/dishes')
-  async getDishesByRestaurantAndCategory(
-    @Query('restaurantId') restaurantId: string,
+  @Get('restaurant/:id/dishes/')
+  async getRestaurantsByCategory(
+    @Param('id') resId: string,
     @Query('category') category: string,
   ) {
-    try {
-      if (!restaurantId || !category) {
-        throw new BadRequestException(
-          'Both restaurantId and category are required.',
-        );
-      }
-
-      const restaurants =
-        await this.restaurantsService.getDishesByRestaurantAndCategory(
-          restaurantId,
-          category,
-        );
-
-      return restaurants;
-    } catch (error) {
-      throw new BadRequestException(
-        'Failed to get dishes by restaurant and category',
-      );
-    }
+    // Call your service method to fetch restaurants by category
+    const restaurants =
+      await this.restaurantsService.getDishesByRestaurantAndCategory(resId, category);
+    return restaurants;
   }
+
 
   @Put(':id')
   async updateRestaurant(

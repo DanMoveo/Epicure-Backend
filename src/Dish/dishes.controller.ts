@@ -7,9 +7,10 @@ import {
   Delete,
   Query,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
-import { DishesService } from 'src/services/dishes.service';
-import { CreateDishDto, UpdateDishDto } from '../dto/dishes.dto';
+import { DishesService } from 'src/Dish/dishes.service';
+import { CreateDishDto, UpdateDishDto } from './dishes.dto';
 
 @Controller('dishes')
 export class DishesController {
@@ -35,20 +36,21 @@ export class DishesController {
     }
   }
 
-  @Get('dish')
-  async getDish(@Query('id') dishId: string) {
+  @Get('dish/:id')
+  async getDish(@Param('id') dishId: string) {
     try {
       const dish = await this.dishesService.getSingleDish(dishId);
-
+  
       if (!dish) {
         throw new BadRequestException('Dish not found');
       }
-
+  
       return dish;
     } catch (error) {
       throw new BadRequestException('Failed to get dish');
     }
   }
+  
 
   @Put('dish')
   async updateDish(

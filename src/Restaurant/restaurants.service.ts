@@ -3,22 +3,21 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Restaurant } from '../models/restaurant.model';
+import { Restaurant } from './restaurant.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DishesService } from './dishes.service';
-import {
-  CreateRestaurantDto,
-  UpdateRestaurantDto,
-} from '../dto/restaurant.dto';
+import { DishesService } from '../Dish/dishes.service';
+import { CreateRestaurantDto, UpdateRestaurantDto } from './restaurant.dto';
 import { Types } from 'mongoose';
+import { Dish } from '../Dish/dish.model'; // Import the Dish model
 
 @Injectable()
 export class RestaurantsService {
   constructor(
     @InjectModel('Restaurant')
     private readonly restaurantModel: Model<Restaurant>,
-    private readonly dishesService: DishesService,
+    @InjectModel('Dish')
+    private readonly dishModel: Model<Dish>,
   ) {}
 
   async insertRestaurant(createRestaurantDto: CreateRestaurantDto) {
@@ -55,7 +54,7 @@ export class RestaurantsService {
     try {
       const restaurants = await this.restaurantModel
         .find()
-        .populate('chefId', 'name') 
+        .populate('chefId', 'name')
         .exec();
 
       const filteredRestaurants = [];
@@ -77,7 +76,11 @@ export class RestaurantsService {
 
   async getSingleRestaurant(restaurantId: string) {
     try {
-      const restaurant = await this.findRestaurant(restaurantId);
+      const restaurant = await this.restaurantModel
+        .findById(restaurantId)
+        .populate('chefId', 'name')
+        .populate('dishes')
+        .exec();
 
       if (!restaurant) {
         throw new Error('Restaurant not found');
@@ -88,6 +91,30 @@ export class RestaurantsService {
       throw new InternalServerErrorException('Failed to get restaurant', error);
     }
   }
+
+  async getDishesByRestaurantAndCategory(restaurantId: string, category: string) {
+    try {
+      const restaurant = await this.restaurantModel
+        .findById(restaurantId)
+        .populate('dishes')
+        .select('dishes')
+        .exec();
+  
+      if (!restaurant) {
+        throw new Error('Restaurant not found');
+      }
+  
+      const filteredDishes = await this.dishModel.find({
+        _id: { $in: restaurant.dishes },
+        category: category, 
+      });
+      
+      return filteredDishes;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to get restaurant', error);
+    }
+  }
+  
 
   async getMostPopularRestaurants() {
     try {
@@ -138,30 +165,6 @@ export class RestaurantsService {
       return { message: 'Restaurant deleted successfully' };
     } catch (error) {
       throw new BadRequestException('Failed to delete restaurant');
-    }
-  }
-
-  async getDishesByRestaurantAndCategory(
-    restaurantId: string,
-    category: string,
-  ) {
-    try {
-      const restaurant = await this.findRestaurant(restaurantId);
-
-      if (!restaurant) {
-        throw new BadRequestException('Restaurant not found');
-      }
-
-      const dishes = await this.dishesService.getDishesByCategoryAndRestaurant(
-        category,
-        restaurantId,
-      );
-
-      return dishes;
-    } catch (error) {
-      throw new BadRequestException(
-        'Failed to get dishes by restaurant and category',
-      );
     }
   }
 
