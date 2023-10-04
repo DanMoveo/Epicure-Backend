@@ -22,6 +22,7 @@ import { CreateChefDto, UpdateChefDto } from 'src/Chef/chefs.dto';
 import { ChefsService } from 'src/Chef/chefs.service';
 import { CreateUserDto, LoginDto } from 'src/User/user.dto';
 import { UserService } from 'src/User/user.service';
+import { Admin } from './admin.model';
 
 @Controller('admins')
 export class AdminsController {
@@ -34,19 +35,34 @@ export class AdminsController {
   ) {}
 
   @Get()
-  async getAllAdmins() {}
+  async getAllAdmins(): Promise<Admin[]> {
+    return this.adminService.getAllAdmins();
+  }
 
-  @Get()
-  async getAdmin() {}
+  @Get(':id')
+  async getAdmin(@Param('id') id: string): Promise<Admin | null> {
+    return this.adminService.getAdminById(id);
+  }
 
   @Post()
-  async addAdmin() {}
+  async addAdmin(
+    @Body() adminData: { name: string; password: string },
+  ): Promise<Admin> {
+    return this.adminService.addAdmin(adminData);
+  }
 
-  @Put()
-  async updateAdmin() {}
+  @Put(':id')
+  async updateAdmin(
+    @Param('id') id: string,
+    @Body() adminData: { name: string; password: string },
+  ): Promise<Admin | null> {
+    return this.adminService.updateAdmin(id, adminData);
+  }
 
-  @Delete()
-  async deleteAdmin() {}
+  @Delete(':id')
+  async deleteAdmin(@Param('id') id: string): Promise<boolean> {
+    return this.adminService.deleteAdmin(id);
+  }
 
   @Post('restaurants')
   async addRestaurant(@Body() createRestaurantDto: CreateRestaurantDto) {
