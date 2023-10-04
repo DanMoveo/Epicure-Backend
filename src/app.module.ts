@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RestaurantsModule } from './modules/restaurants.module';
+import { RestaurantsModule } from './Restaurant/restaurants.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DishesModule } from './modules/dish.module';
+import { DishesModule } from './Dish/dish.module';
+import { ChefsModule } from './Chef/chef.module';
+import { UsersModule } from './User/users.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { DishesModule } from './modules/dish.module';
     ),
     RestaurantsModule,
     DishesModule,
+    ChefsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
