@@ -14,7 +14,7 @@ export class DishesService {
   ) {}
 
   async insertDish(createDishDto: CreateDishDto) {
-    const { image, name, description, price, category, icons, restaurantId } =
+    const { image, name, description, price, category, icons } =
       createDishDto;
 
     try {
@@ -25,13 +25,12 @@ export class DishesService {
         price,
         category,
         icons,
-        restaurant: restaurantId,
       });
 
       const result = await newDish.save();
       const dishId = result.id;
 
-      await this.updateRestaurantWithDish(restaurantId, dishId);
+      await this.updateRestaurantWithDish(dishId);
 
       return dishId as string;
     } catch (error) {
@@ -121,8 +120,8 @@ export class DishesService {
     }
   }
 
-  private async updateRestaurantWithDish(restaurantId: string, dishId: string) {
-    await this.restaurantModel.findByIdAndUpdate(restaurantId, {
+  private async updateRestaurantWithDish( dishId: string) {
+    await this.restaurantModel.findByIdAndUpdate(dishId, {
       $push: { dishes: dishId },
     });
   }
@@ -145,7 +144,6 @@ export class DishesService {
       price: dish.price,
       category: dish.category,
       icons: dish.icons,
-      restaurantId: dish.restaurant,
     };
   }
 }

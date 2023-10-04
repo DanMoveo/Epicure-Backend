@@ -7,7 +7,6 @@ export const DishSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: { type: String, required: true },
   icons: [{ type: String }],
-  restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
 });
 
 export interface Dish extends mongoose.Document {
@@ -18,5 +17,4 @@ export interface Dish extends mongoose.Document {
   price: number;
   category: string;
   icons: string[];
-  restaurant: mongoose.Schema.Types.ObjectId;
 }

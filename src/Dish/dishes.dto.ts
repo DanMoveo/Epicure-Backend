@@ -22,8 +22,6 @@ export class CreateDishDto {
   @ArrayNotEmpty()
   icons: string[];
 
-  @IsString()
-  restaurantId: string;
 }
 
 export class UpdateDishDto {
@@ -46,6 +44,4 @@ export class UpdateDishDto {
   @ArrayNotEmpty()
   icons: string[];
 
-  @IsString()
-  restaurantId: string;
 }

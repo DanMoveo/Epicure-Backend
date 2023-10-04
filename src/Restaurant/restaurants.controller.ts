@@ -80,7 +80,6 @@ export class RestaurantsController {
     return restaurants;
   }
 
-
   @Put(':id')
   async updateRestaurant(
     @Query('id') resId: string,

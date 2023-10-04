@@ -51,7 +51,6 @@ export class ChefsController {
     }
   }
   
-
   @Put('chef')
   async updateChef(
     @Query('id') chefId: string,

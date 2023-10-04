@@ -51,7 +51,6 @@ export class DishesController {
     }
   }
   
-
   @Put('dish')
   async updateDish(
     @Query('id') dishId: string,
