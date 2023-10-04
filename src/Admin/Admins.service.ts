@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Admin } from './Admin.model';
 
 @Injectable()
-export class AdminService {
+export class AdminsService {
   constructor(
     @InjectModel('Admin') private readonly adminModel: Model<Admin>,
   ) {}
