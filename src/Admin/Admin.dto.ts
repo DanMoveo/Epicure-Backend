@@ -16,5 +16,4 @@ export class UpdateAdminDto {
 
   @IsString()
   password: string;
-    
 }
