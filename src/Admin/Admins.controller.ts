@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { AdminsService } from './Admins.service';
 import { RestaurantsService } from '../Restaurant/restaurants.service';
@@ -24,8 +25,12 @@ import { CreateDishDto, UpdateDishDto } from 'src/Dish/dishes.dto';
 import { CreateChefDto, UpdateChefDto } from 'src/Chef/chefs.dto';
 import { CreateUserDto } from 'src/User/user.dto';
 import { DishesService } from 'src/Dish/dishes.service';
+import { Role } from 'src/enums/role.enum';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @Controller('admins')
+@UseGuards(RolesGuard)
 export class AdminsController {
   constructor(
     private readonly dishesService: DishesService,
@@ -44,6 +49,7 @@ export class AdminsController {
   @Post('/login')
   login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
     console.log('Login method called');
+    console.log();
     return this.adminService.login(loginDto);
   }
 
@@ -73,6 +79,7 @@ export class AdminsController {
   }
 
   @Post('restaurants')
+  @Roles(Role.SuperAdmin)
   async addRestaurant(@Body() createRestaurantDto: CreateRestaurantDto) {
     try {
       const generatedId =

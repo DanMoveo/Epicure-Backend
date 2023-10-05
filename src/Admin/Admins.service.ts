@@ -9,28 +9,39 @@ import { Admin } from './Admin.model';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto, SignUpDto } from './Admin.dto';
+import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class AdminsService {
   constructor(
-
     @InjectModel(Admin.name)
     private adminModel: Model<Admin>,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
     const { name, email, password } = signUpDto;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const defaultRole = [Role.User]; // Modify this based on your roles enum
+
     const admin = await this.adminModel.create({
       name,
       email,
       password: hashedPassword,
+      roles: defaultRole,
     });
 
-    const token = this.jwtService.sign({ id: admin._id });
+    const token = this.jwtService.sign(
+      {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        roles: admin.roles,
+      },
+      { secret: 'dan' },
+    );
 
     return { token };
   }
@@ -49,8 +60,17 @@ export class AdminsService {
     if (!isPasswordMatched) {
       throw new UnauthorizedException('Invaild  password');
     }
+    console.log(`User role: ${admin.roles}`);
 
-    const token = this.jwtService.sign({ id: admin._id });
+    const token = this.jwtService.sign(
+      {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        roles: admin.roles,
+      },
+      { secret: 'dan' },
+    );
 
     return { token };
   }
@@ -79,7 +99,10 @@ export class AdminsService {
     }
   }
 
-  async addAdmin(adminData: { name: string; password: string }): Promise<Admin> {
+  async addAdmin(adminData: {
+    name: string;
+    password: string;
+  }): Promise<Admin> {
     const admin = new this.adminModel(adminData);
     try {
       await admin.save();
@@ -94,11 +117,9 @@ export class AdminsService {
     adminData: { name: string; password: string },
   ): Promise<Admin | null> {
     try {
-      const admin = await this.adminModel.findByIdAndUpdate(
-        id,
-        adminData,
-        { new: true }
-      ).exec();
+      const admin = await this.adminModel
+        .findByIdAndUpdate(id, adminData, { new: true })
+        .exec();
       if (!admin) {
         throw new NotFoundException('Admin not found');
       }

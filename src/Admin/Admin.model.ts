@@ -13,6 +13,9 @@ export class Admin extends Document {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ required: false })
+  roles: string[];
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);

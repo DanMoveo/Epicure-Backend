@@ -1,8 +1,7 @@
-
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { Module, ValidationPipe } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core'; 
+import { APP_PIPE } from '@nestjs/core';
 
 import { RestaurantsModule } from './Restaurant/restaurants.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,7 +12,8 @@ import { AdminModule } from './Admin/Admins.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
+import { JwtMiddleware } from './middleware/jwtMiddleware';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -21,6 +21,14 @@ import { AppService } from './app.service';
     MongooseModule.forRoot(
       'mongodb+srv://dang:shinLsPdP8MQWCCn@cluster0.pfyqhsq.mongodb.net/?retryWrites=true&w=majority',
     ),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
+      inject: [ConfigService],
+    }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     RestaurantsModule,
     DishesModule,
@@ -29,10 +37,13 @@ import { AppService } from './app.service';
     AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    JwtMiddleware,
+    AppService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
-    },],
+    },
+  ],
 })
 export class AppModule {}
