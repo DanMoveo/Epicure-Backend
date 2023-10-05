@@ -1,12 +1,18 @@
-import * as mongoose from 'mongoose';
+// admin model
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-export const AdminSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  password: { type: String, required: true },
-});
+@Schema()
+export class Admin extends Document {
 
-export interface Admin extends mongoose.Document {
-  id: string;
+  @Prop({ required: true })
   name: string;
+
+  @Prop({ required: true, unique: true })
+  email: string;
+
+  @Prop({ required: true })
   password: string;
 }
+
+export const AdminSchema = SchemaFactory.createForClass(Admin);

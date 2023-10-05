@@ -12,7 +12,7 @@ import { UserService } from 'src/User/user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  //   @Role(EAdminRole.Admin)
+    // @Role(EAdminRole.Admin)
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     try {
@@ -32,7 +32,7 @@ export class UserController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
+  async userLogin(@Body() loginDto: LoginDto) {
     try {
       const user = await this.userService.login(loginDto);
 

@@ -11,32 +11,40 @@ import {
   Put,
 } from '@nestjs/common';
 import { AdminsService } from './Admins.service';
-import { RestaurantsService } from 'src/Restaurant/restaurants.service';
+import { RestaurantsService } from '../Restaurant/restaurants.service';
 import {
   CreateRestaurantDto,
   UpdateRestaurantDto,
-} from 'src/Restaurant/restaurant.dto';
-import { CreateDishDto, UpdateDishDto } from 'src/Dish/dishes.dto';
-import { DishesService } from 'src/Dish/dishes.service';
-import { CreateChefDto, UpdateChefDto } from 'src/Chef/chefs.dto';
-import { ChefsService } from 'src/Chef/chefs.service';
-import { CreateUserDto, LoginDto } from 'src/User/user.dto';
-import { UserService } from 'src/User/user.service';
+} from '../Restaurant/restaurant.dto';
 import { Admin } from './admin.model';
+import { LoginDto, SignUpDto } from './Admin.dto';
+import { ChefsService } from 'src/Chef/chefs.service';
+import { UserService } from 'src/User/user.service';
+import { CreateDishDto, UpdateDishDto } from 'src/Dish/dishes.dto';
+import { CreateChefDto, UpdateChefDto } from 'src/Chef/chefs.dto';
+import { CreateUserDto } from 'src/User/user.dto';
+import { DishesService } from 'src/Dish/dishes.service';
 
 @Controller('admins')
 export class AdminsController {
   constructor(
+    private readonly dishesService: DishesService,
     private readonly adminService: AdminsService,
     private readonly restaurantsService: RestaurantsService,
-    private readonly dishesService: DishesService,
     private readonly chefsService: ChefsService,
     private readonly userService: UserService,
   ) {}
 
-  @Get()
-  async getAllAdmins(): Promise<Admin[]> {
-    return this.adminService.getAllAdmins();
+  @Post('/signup')
+  signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
+    console.log('SignUp method called');
+    return this.adminService.signUp(signUpDto);
+  }
+
+  @Post('/login')
+  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    console.log('Login method called');
+    return this.adminService.login(loginDto);
   }
 
   @Get(':id')
@@ -219,7 +227,7 @@ export class AdminsController {
   }
 
   @Post('users/login')
-  async login(@Body() loginDto: LoginDto) {
+  async userLogin(@Body() loginDto: LoginDto) {
     try {
       const user = await this.userService.login(loginDto);
 

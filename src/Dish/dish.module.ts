@@ -14,5 +14,6 @@ import { RestaurantSchema } from 'src/Restaurant/restaurant.model';
   ],
   controllers: [DishesController],
   providers: [DishesService],
+  exports: [DishesService],
 })
 export class DishesModule {}

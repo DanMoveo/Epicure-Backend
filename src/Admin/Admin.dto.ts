@@ -1,19 +1,29 @@
-// chefs.dto.ts
+// admin.dto.ts
 
-import { IsString } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
-export class CreateAdminDto {
+export class SignUpDto {
+  @IsNotEmpty()
   @IsString()
-  name: string;
+  readonly name: string;
 
+  @IsNotEmpty()
+  @IsEmail({}, { message: 'Please enter a valid email address' }) 
+  readonly email: string;
+
+  @IsNotEmpty()
   @IsString()
-  password: string;
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  readonly password: string;
 }
 
-export class UpdateAdminDto {
-  @IsString()
-  name: string;
+export class LoginDto {
+  @IsNotEmpty()
+  @IsEmail({}, { message: 'please enter correct email' })
+  readonly email: string;
 
+  @IsNotEmpty()
   @IsString()
-  password: string;
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  readonly password: string;
 }
