@@ -40,7 +40,7 @@ export class AdminsService {
         email: admin.email,
         roles: admin.roles,
       },
-      { secret: 'dan' },
+      { secret: 'dandan' },
     );
 
     return { token };
@@ -69,7 +69,7 @@ export class AdminsService {
         email: admin.email,
         roles: admin.roles,
       },
-      { secret: 'dan' },
+      { secret: 'dandan' },
     );
 
     return { token };

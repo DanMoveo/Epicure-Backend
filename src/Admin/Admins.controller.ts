@@ -49,7 +49,6 @@ export class AdminsController {
   @Post('/login')
   login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
     console.log('Login method called');
-    console.log();
     return this.adminService.login(loginDto);
   }
 
