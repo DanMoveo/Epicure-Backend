@@ -42,11 +42,12 @@ export class ChefsService {
   }
 
   async updateChef(chefId: string, updateChefDto: UpdateChefDto) {
-    const { name } = updateChefDto;
+    const { name, image } = updateChefDto;
 
     try {
       const updatedChef = await this.findChef(chefId);
       updatedChef.name = name;
+      updatedChef.image = image;
 
       await updatedChef.save();
       return this.mapChefToResponse(updatedChef);
@@ -88,6 +89,7 @@ export class ChefsService {
     return {
       id: chef.id,
       name: chef.name,
+      image: chef.image,
     };
   }
 }

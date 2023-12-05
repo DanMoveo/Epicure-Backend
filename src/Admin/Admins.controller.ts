@@ -169,6 +169,7 @@ export class AdminsController {
   }
 
   @Post('chefs')
+  @Roles(Role.SuperAdmin)
   async addChef(@Body() createChefDto: CreateChefDto) {
     try {
       const generatedId = await this.chefsService.insertChef(createChefDto);

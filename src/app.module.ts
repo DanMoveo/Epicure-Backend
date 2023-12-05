@@ -51,6 +51,6 @@ import { JwtModule } from '@nestjs/jwt';
 
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes('admins');
+    consumer.apply(JwtMiddleware).forRoutes('admins/restaurants');
   }
 }
