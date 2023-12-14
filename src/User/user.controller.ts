@@ -12,7 +12,6 @@ import { UserService } from 'src/User/user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-    // @Role(EAdminRole.Admin)
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     try {

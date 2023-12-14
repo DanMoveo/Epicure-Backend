@@ -1,6 +1,6 @@
 // restaurant.dto.ts
 
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsArray } from 'class-validator';
 
 export class CreateRestaurantDto {
   @IsString()
@@ -14,6 +14,9 @@ export class CreateRestaurantDto {
 
   @IsNumber()
   rate: number;
+
+  @IsArray()
+  dishes: string[];
 }
 
 export class UpdateRestaurantDto {
@@ -28,4 +31,7 @@ export class UpdateRestaurantDto {
 
   @IsNumber()
   rate: number;
+
+  @IsArray()
+  dishes: string[];
 }

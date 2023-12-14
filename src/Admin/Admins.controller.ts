@@ -25,9 +25,9 @@ import { CreateDishDto, UpdateDishDto } from 'src/Dish/dishes.dto';
 import { CreateChefDto, UpdateChefDto } from 'src/Chef/chefs.dto';
 import { CreateUserDto } from 'src/User/user.dto';
 import { DishesService } from 'src/Dish/dishes.service';
-import { Role } from 'src/enums/role.enum';
-import { Roles } from 'src/decorators/roles.decorator';
-import { RolesGuard } from 'src/guards/roles.guard';
+import { Role } from 'src/shared/enums/role.enum';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('admins')
 @UseGuards(RolesGuard)
@@ -41,40 +41,80 @@ export class AdminsController {
   ) {}
 
   @Post('/signup')
-  signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
-    console.log('SignUp method called');
-    return this.adminService.signUp(signUpDto);
+  async signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
+    try {
+      const result = await this.adminService.signUp(signUpDto);
+      return result;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to sign up');
+    }
   }
 
+
   @Post('/login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    console.log('Login method called');
-    return this.adminService.login(loginDto);
+  async login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    try {
+      const result = await this.adminService.login(loginDto);
+      return result;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to log in');
+    }
+  }
+
+  @Get()
+  async getAllAdmins() {
+    try {
+      const admins = await this.adminService.getAllAdmins();
+      return admins;
+    } catch (error) {
+      throw new BadRequestException('Failed to get all admins');
+    }
   }
 
   @Get(':id')
   async getAdmin(@Param('id') id: string): Promise<Admin | null> {
-    return this.adminService.getAdminById(id);
+    try {
+      const admin = await this.adminService.getAdminById(id);
+      return admin;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to get admin');
+    }
   }
 
   @Post()
   async addAdmin(
     @Body() adminData: { name: string; password: string },
   ): Promise<Admin> {
-    return this.adminService.addAdmin(adminData);
+    try {
+      const admin = await this.adminService.addAdmin(adminData);
+      return admin;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to add admin');
+    }
   }
+
 
   @Put(':id')
   async updateAdmin(
     @Param('id') id: string,
     @Body() adminData: { name: string; password: string },
   ): Promise<Admin | null> {
-    return this.adminService.updateAdmin(id, adminData);
+    try {
+      const admin = await this.adminService.updateAdmin(id, adminData);
+      return admin;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to update admin');
+    }
   }
 
   @Delete(':id')
   async deleteAdmin(@Param('id') id: string): Promise<boolean> {
-    return this.adminService.deleteAdmin(id);
+    try {
+      const result = await this.adminService.deleteAdmin(id);
+      return result;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to delete admin');
+    }
   }
 
   @Post('restaurants')

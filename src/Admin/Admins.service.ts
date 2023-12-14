@@ -9,7 +9,7 @@ import { Admin } from './Admin.model';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto, SignUpDto } from './Admin.dto';
-import { Role } from 'src/enums/role.enum';
+import { Role } from 'src/shared/enums/role.enum';
 
 @Injectable()
 export class AdminsService {
@@ -21,18 +21,14 @@ export class AdminsService {
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
     const { name, email, password } = signUpDto;
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const defaultRole = [Role.User]; // Modify this based on your roles enum
-
+    const defaultRole = [Role.User];
     const admin = await this.adminModel.create({
       name,
       email,
       password: hashedPassword,
       roles: defaultRole,
     });
-
     const token = this.jwtService.sign(
       {
         id: admin._id,
@@ -42,26 +38,20 @@ export class AdminsService {
       },
       { secret: 'dandan' },
     );
-
     return { token };
   }
 
   async login(loginDto: LoginDto): Promise<{ token: string }> {
     const { email, password } = loginDto;
-
     const admin = await this.adminModel.findOne({ email });
-
     if (!admin) {
       throw new UnauthorizedException('Invaild email or password');
     }
-
     const isPasswordMatched = await bcrypt.compare(password, admin.password);
-
     if (!isPasswordMatched) {
       throw new UnauthorizedException('Invaild  password');
     }
     console.log(`User role: ${admin.roles}`);
-
     const token = this.jwtService.sign(
       {
         id: admin._id,
@@ -71,32 +61,15 @@ export class AdminsService {
       },
       { secret: 'dandan' },
     );
-
     return { token };
   }
 
-  async getAllAdmins(): Promise<Admin[]> {
-    try {
-      const admins = await this.adminModel.find().exec();
-      if (!admins) {
-        throw new NotFoundException('No admins found');
-      }
-      return admins;
-    } catch (error) {
-      throw new NotFoundException('Error fetching admins');
-    }
+  getAllAdmins(): Promise<Admin[]> {
+    return this.adminModel.find().exec();
   }
 
   async getAdminById(id: string): Promise<Admin | null> {
-    try {
-      const admin = await this.adminModel.findById(id).exec();
-      if (!admin) {
-        throw new NotFoundException('Admin not found');
-      }
-      return admin;
-    } catch (error) {
-      throw new NotFoundException('Error fetching admin');
-    }
+    return this.adminModel.findById(id).exec();
   }
 
   async addAdmin(adminData: {
@@ -104,40 +77,21 @@ export class AdminsService {
     password: string;
   }): Promise<Admin> {
     const admin = new this.adminModel(adminData);
-    try {
-      await admin.save();
-      return admin;
-    } catch (error) {
-      throw new NotFoundException('Error adding admin');
-    }
+    await admin.save();
+    return admin;
   }
 
   async updateAdmin(
     id: string,
     adminData: { name: string; password: string },
   ): Promise<Admin | null> {
-    try {
-      const admin = await this.adminModel
-        .findByIdAndUpdate(id, adminData, { new: true })
-        .exec();
-      if (!admin) {
-        throw new NotFoundException('Admin not found');
-      }
-      return admin;
-    } catch (error) {
-      throw new NotFoundException('Error updating admin');
-    }
+    return this.adminModel
+      .findByIdAndUpdate(id, adminData, { new: true })
+      .exec();
   }
 
   async deleteAdmin(id: string): Promise<boolean> {
-    try {
-      const result = await this.adminModel.findByIdAndRemove(id).exec();
-      if (!result) {
-        throw new NotFoundException('Admin not found');
-      }
-      return true;
-    } catch (error) {
-      throw new NotFoundException('Error deleting admin');
-    }
+    const result = await this.adminModel.findByIdAndRemove(id).exec();
+    return !!result;
   }
 }

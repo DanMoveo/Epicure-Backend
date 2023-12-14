@@ -15,66 +15,40 @@ export class ChefsService {
       image,
       name,
     });
-    try {
-      const result = await newChef.save();
-      return result.id as string;
-    } catch (error) {
-      throw new Error('Failed to insert chef');
-    }
+    const result = await newChef.save();
+    return result.id as string;
   }
 
   async getChefs() {
-    try {
-      const chefs = await this.chefModel.find().exec();
-      return chefs.map((chef) => this.mapChefToResponse(chef));
-    } catch (error) {
-      throw new Error('Failed to get chefs');
-    }
+    const chefs = await this.chefModel.find().exec();
+    return chefs.map((chef) => this.mapChefToResponse(chef));
   }
 
   async getSingleChef(chefId: string) {
-    try {
-      const chef = await this.findChef(chefId);
-      return this.mapChefToResponse(chef);
-    } catch (error) {
-      throw new Error('Failed to get chef');
-    }
+    const chef = await this.findChef(chefId);
+    return this.mapChefToResponse(chef);
   }
 
   async updateChef(chefId: string, updateChefDto: UpdateChefDto) {
     const { name, image } = updateChefDto;
-
-    try {
-      const updatedChef = await this.findChef(chefId);
-      updatedChef.name = name;
-      updatedChef.image = image;
-
-      await updatedChef.save();
-      return this.mapChefToResponse(updatedChef);
-    } catch (error) {
-      throw new Error('Failed to update chef');
-    }
+    const updatedChef = await this.findChef(chefId);
+    updatedChef.name = name;
+    updatedChef.image = image;
+    await updatedChef.save();
+    return this.mapChefToResponse(updatedChef);
   }
 
   async deleteChef(chefId: string) {
-    try {
-      const result = await this.chefModel.findByIdAndDelete(chefId);
-      if (!result) {
-        throw new Error('Chef not found');
-      }
-      return { message: 'Chef deleted successfully' };
-    } catch (error) {
-      throw new Error('Failed to delete chef');
+    const result = await this.chefModel.findByIdAndDelete(chefId);
+    if (!result) {
+      throw new Error('Chef not found');
     }
+    return { message: 'Chef deleted successfully' };
   }
 
   async getChefNameById(chefId: string): Promise<string> {
-    try {
-      const chef = await this.findChef(chefId);
-      return chef.name;
-    } catch (error) {
-      throw new Error('Chef not found');
-    }
+    const chef = await this.findChef(chefId);
+    return chef.name;
   }
 
   private async findChef(id: string): Promise<Chef> {

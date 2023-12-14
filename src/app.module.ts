@@ -12,7 +12,7 @@ import { AdminModule } from './Admin/Admins.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { JwtMiddleware } from './middleware/jwtMiddleware';
+import { JwtMiddleware } from './shared/middleware/jwtMiddleware';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({

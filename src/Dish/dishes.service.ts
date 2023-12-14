@@ -14,125 +14,82 @@ export class DishesService {
   ) {}
 
   async insertDish(createDishDto: CreateDishDto) {
-    const { image, name, description, price, category, icons } =
-      createDishDto;
-
-    try {
-      const newDish = new this.dishModel({
-        image,
-        name,
-        description,
-        price,
-        category,
-        icons,
-      });
-
-      const result = await newDish.save();
-      const dishId = result.id;
-
-      await this.updateRestaurantWithDish(dishId);
-
-      return dishId as string;
-    } catch (error) {
-      throw new Error('Failed to add dish');
-    }
+    const { image, name, description, price, category, icons } = createDishDto;
+    const newDish = new this.dishModel({
+      image,
+      name,
+      description,
+      price,
+      category,
+      icons,
+    });
+    const result = await newDish.save();
+    const dishId = result.id;
+    this.updateRestaurantWithDish(dishId);
+    return dishId as string;
   }
 
   async getDishes() {
-    try {
-      const dishes = await this.dishModel.find().exec();
-      return dishes.map((dish) => this.mapDishToResponse(dish));
-    } catch (error) {
-      throw new Error('Failed to get all dishes');
-    }
+    const dishes = await this.dishModel.find().exec();
+    return dishes.map((dish) => this.mapDishToResponse(dish));
   }
 
   async getSingleDish(dishId: string) {
-    try {
-      const dish = await this.findDish(dishId);
-
-      if (!dish) {
-        throw new Error('Dish not found');
-      }
-
-      return this.mapDishToResponse(dish);
-    } catch (error) {
-      throw new Error('Failed to get dish');
+    const dish = await this.findDish(dishId);
+    if (!dish) {
+      throw new Error('Dish not found');
     }
+    return this.mapDishToResponse(dish);
   }
 
   async getDishesByCategoryAndRestaurant(
     category: string,
     restaurantId: string,
   ) {
-    try {
-      const dishes = await this.dishModel
-        .find({ category, restaurant: restaurantId })
-        .exec();
-
-      if (!dishes || dishes.length === 0) {
-        throw new Error(
-          'Could not find dishes for the specified category and restaurant.',
-        );
-      }
-
-      return dishes.map((dish) => this.mapDishToResponse(dish));
-    } catch (error) {
-      throw new Error('Failed to get dishes by category and restaurant');
+    const dishes = await this.dishModel
+      .find({ category, restaurant: restaurantId })
+      .exec();
+    if (!dishes || dishes.length === 0) {
+      throw new Error(
+        'Could not find dishes for the specified category and restaurant.',
+      );
     }
+    return dishes.map((dish) => this.mapDishToResponse(dish));
   }
 
   async updateDish(dishId: string, updateDishDto: UpdateDishDto) {
     const { image, name, description, price, category, icons } = updateDishDto;
-
-    try {
       const updatedDish = await this.findDish(dishId);
-
       if (!updatedDish) {
         throw new Error('Dish not found');
       }
-
       updatedDish.image = image;
       updatedDish.name = name;
       updatedDish.description = description;
       updatedDish.price = price;
       updatedDish.category = category;
       updatedDish.icons = icons;
-
       await updatedDish.save();
       return this.mapDishToResponse(updatedDish);
-    } catch (error) {
-      throw new Error('Failed to update dish');
-    }
   }
 
   async deleteDish(dishId: string) {
-    try {
       const result = await this.dishModel.findByIdAndDelete(dishId);
-
       if (!result) {
         throw new Error('Dish not found');
       }
-
       return { message: 'Dish deleted successfully' };
-    } catch (error) {
-      throw new Error('Failed to delete dish');
-    }
   }
 
-  private async updateRestaurantWithDish( dishId: string) {
+  private async updateRestaurantWithDish(dishId: string) {
     await this.restaurantModel.findByIdAndUpdate(dishId, {
       $push: { dishes: dishId },
     });
   }
 
   private async findDish(id: string): Promise<Dish | null> {
-    try {
       const dish = await this.dishModel.findById(id);
       return dish;
-    } catch (error) {
-      return null;
-    }
   }
 
   private mapDishToResponse(dish: Dish) {

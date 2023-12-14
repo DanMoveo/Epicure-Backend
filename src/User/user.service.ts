@@ -15,48 +15,34 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
-
   async register(createUserDto: CreateUserDto): Promise<User> {
     const { email, password } = createUserDto;
-
-    try {
-      const existingUser = await this.userModel.findOne({ email }).exec();
-      if (existingUser) {
-        throw new ConflictException('User with this email already exists');
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const createdUser = new this.userModel({
-        email,
-        password: hashedPassword,
-      });
-
-      return createdUser.save();
-    } catch (error) {
-      throw new Error('Unable to register user');
+    const existingUser = await this.userModel.findOne({ email }).exec();
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const createdUser = new this.userModel({
+      email,
+      password: hashedPassword,
+    });
+    return createdUser.save();
   }
 
   async login(loginDto: LoginDto): Promise<User | null> {
     const { email, password } = loginDto;
+    const user = await this.userModel.findOne({ email }).exec();
 
-    try {
-      const user = await this.userModel.findOne({ email }).exec();
+    if (user) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
-      if (user) {
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (isPasswordValid) {
-          return user;
-        } else {
-          throw new UnauthorizedException('Invalid password');
-        }
+      if (isPasswordValid) {
+        return user;
       } else {
-        throw new Error('User not found');
+        throw new UnauthorizedException('Invalid password');
       }
-    } catch (error) {
-      throw new Error('Unable to login');
+    } else {
+      throw new Error('User not found');
     }
   }
 }

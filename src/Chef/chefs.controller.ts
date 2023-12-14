@@ -1,31 +1,15 @@
 import {
-  Body,
   Controller,
   Get,
-  Post,
-  Put,
-  Delete,
-  Query,
   BadRequestException,
   Param,
 } from '@nestjs/common';
-import { CreateChefDto, UpdateChefDto } from './chefs.dto';
 import { ChefsService } from 'src/Chef/chefs.service';
 
 @Controller('chefs')
 export class ChefsController {
-  constructor(private readonly chefsService: ChefsService) {}
-
-  // @Post()
-  // async addChef(@Body() createChefDto: CreateChefDto) {
-  //   try {
-  //     const generatedId = await this.chefsService.insertChef(createChefDto);
-  //     return { id: generatedId };
-  //   } catch (error) {
-  //     throw new BadRequestException('Failed to add chef');
-  //   }
-  // }
-
+  constructor(private readonly chefsService: ChefsService) { }
+  
   @Get()
   async getAllChefs() {
     try {
@@ -40,50 +24,13 @@ export class ChefsController {
   async getChef(@Param('id') chefId: string) {
     try {
       const chef = await this.chefsService.getSingleChef(chefId);
-  
       if (!chef) {
         throw new BadRequestException('Chef not found');
       }
-  
       return chef;
     } catch (error) {
       throw new BadRequestException('Failed to get chef');
     }
   }
   
-  // @Put('chef')
-  // async updateChef(
-  //   @Query('id') chefId: string,
-  //   @Body() updateChefDto: UpdateChefDto,
-  // ) {
-  //   try {
-  //     const updatedChef = await this.chefsService.updateChef(
-  //       chefId,
-  //       updateChefDto,
-  //     );
-
-  //     if (!updatedChef) {
-  //       throw new BadRequestException('Chef not found');
-  //     }
-
-  //     return updatedChef;
-  //   } catch (error) {
-  //     throw new BadRequestException('Failed to update chef');
-  //   }
-  // }
-
-  // @Delete('chef')
-  // async deleteChef(@Query('id') chefId: string) {
-  //   try {
-  //     const result = await this.chefsService.deleteChef(chefId);
-
-  //     if (!result) {
-  //       throw new BadRequestException('Chef not found');
-  //     }
-
-  //     return { message: 'Chef deleted successfully' };
-  //   } catch (error) {
-  //     throw new BadRequestException('Failed to delete chef');
-  //   }
-  // }
 }
