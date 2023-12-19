@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateRestaurantDto, UpdateRestaurantDto } from './restaurant.dto';
 import { Types } from 'mongoose';
-import { Dish } from '../Dish/dish.model'; // Import the Dish model
+import { Dish } from '../Dish/dish.model';
 
 @Injectable()
 export class RestaurantsService {
@@ -32,12 +32,26 @@ export class RestaurantsService {
     return result.id as string;
   }
 
-  async getRestaurants() {
+  async getRestaurants(page: number = 1, pageSize: number = 10) {
+    const skip = (page - 1) * pageSize;
     const restaurants = await this.restaurantModel
       .find()
+      .skip(skip)
+      .limit(pageSize)
       .populate('chefId', 'name')
+      .populate('dishes')
       .exec();
+
     return restaurants.map((res) => this.mapRestaurantToResponse(res));
+  }
+
+  async getMostPopularRestaurants() {
+    const popularRestaurants = await this.restaurantModel
+      .find({ rate: { $gte: 4 } })
+      .populate('chefId', 'name')
+      .sort({ rate: -1 })
+      .exec();
+    return popularRestaurants.map((res) => this.mapRestaurantToResponse(res));
   }
 
   async getRestaurantsByChefName(chefName: string) {
@@ -89,43 +103,35 @@ export class RestaurantsService {
     return filteredDishes;
   }
 
-  async getMostPopularRestaurants() {
-    const popularRestaurants = await this.restaurantModel
-      .find({ rate: { $gte: 4 } })
-      .populate('chefId', 'name')
-      .exec();
-    return popularRestaurants.map((res) => this.mapRestaurantToResponse(res));
-  }
-
   async updateRestaurant(
     resId: string,
     updateRestaurantDto: UpdateRestaurantDto,
   ) {
     const { image, name, chefId, rate, dishes } = updateRestaurantDto;
-      const updatedRestaurant = await this.findRestaurant(resId);
-      if (!updatedRestaurant) {
-        throw new BadRequestException('Restaurant not found');
-      }
-      updatedRestaurant.image = image;
-      updatedRestaurant.name = name;
-      updatedRestaurant.chefId = new Types.ObjectId(chefId) as any;
-      updatedRestaurant.rate = rate;
-      updatedRestaurant.dishes = dishes.map((dishId) => dishId.toString());
-      await updatedRestaurant.save();
-      return this.mapRestaurantToResponse(updatedRestaurant);
+    const updatedRestaurant = await this.findRestaurant(resId);
+    if (!updatedRestaurant) {
+      throw new BadRequestException('Restaurant not found');
+    }
+    updatedRestaurant.image = image;
+    updatedRestaurant.name = name;
+    updatedRestaurant.chefId = new Types.ObjectId(chefId) as any;
+    updatedRestaurant.rate = rate;
+    updatedRestaurant.dishes = dishes.map((dishId) => dishId.toString());
+    await updatedRestaurant.save();
+    return this.mapRestaurantToResponse(updatedRestaurant);
   }
 
   async deleteRestaurnt(resId: string) {
-      const result = await this.restaurantModel.findByIdAndDelete(resId);
-      if (!result) {
-        throw new BadRequestException('Restaurant not found');
-      }
-      return { message: 'Restaurant deleted successfully' };
+    const result = await this.restaurantModel.findByIdAndDelete(resId);
+    if (!result) {
+      throw new BadRequestException('Restaurant not found');
+    }
+    return { message: 'Restaurant deleted successfully' };
   }
 
   private async findRestaurant(id: string): Promise<Restaurant | null> {
-      const restaurant = await this.restaurantModel.findById(id);
-      return restaurant;
+    const restaurant = await this.restaurantModel.findById(id);
+    return restaurant;
   }
 
   private mapRestaurantToResponse(restaurant: Restaurant) {

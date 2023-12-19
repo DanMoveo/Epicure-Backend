@@ -1,21 +1,17 @@
-import {
-  Controller,
-  Get,
-  BadRequestException,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, BadRequestException, Param } from '@nestjs/common';
 import { ChefsService } from 'src/Chef/chefs.service';
 
 @Controller('chefs')
 export class ChefsController {
-  constructor(private readonly chefsService: ChefsService) { }
-  
+  constructor(private readonly chefsService: ChefsService) {}
+
   @Get()
   async getAllChefs() {
     try {
       const chefs = await this.chefsService.getChefs();
       return chefs;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get all chefs');
     }
   }
@@ -29,8 +25,8 @@ export class ChefsController {
       }
       return chef;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get chef');
     }
   }
-  
 }

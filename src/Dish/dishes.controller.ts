@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Get,
-  BadRequestException,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, BadRequestException, Param } from '@nestjs/common';
 import { DishesService } from 'src/Dish/dishes.service';
 
 @Controller('dishes')
@@ -16,6 +11,7 @@ export class DishesController {
       const dishes = await this.dishesService.getDishes();
       return dishes;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get all dishes');
     }
   }
@@ -24,15 +20,15 @@ export class DishesController {
   async getDish(@Param('id') dishId: string) {
     try {
       const dish = await this.dishesService.getSingleDish(dishId);
-  
+
       if (!dish) {
         throw new BadRequestException('Dish not found');
       }
-  
+
       return dish;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get dish');
     }
   }
-
 }

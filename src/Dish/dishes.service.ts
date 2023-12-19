@@ -16,11 +16,11 @@ export class DishesService {
   async insertDish(createDishDto: CreateDishDto) {
     const { image, name, description, price, category, icons } = createDishDto;
     const newDish = new this.dishModel({
-      image,
       name,
+      image,
+      category,
       description,
       price,
-      category,
       icons,
     });
     const result = await newDish.save();

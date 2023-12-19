@@ -21,15 +21,17 @@ export class CreateDishDto {
   @IsArray()
   @ArrayNotEmpty()
   icons: string[];
-
 }
 
 export class UpdateDishDto {
   @IsString()
+  name: string;
+
+  @IsString()
   image: string;
 
   @IsString()
-  name: string;
+  category: string;
 
   @IsString()
   description: string;
@@ -37,11 +39,7 @@ export class UpdateDishDto {
   @IsNumber()
   price: number;
 
-  @IsString()
-  category: string;
-
   @IsArray()
   @ArrayNotEmpty()
   icons: string[];
-
 }

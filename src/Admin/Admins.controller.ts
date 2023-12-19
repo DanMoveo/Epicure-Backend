@@ -46,10 +46,10 @@ export class AdminsController {
       const result = await this.adminService.signUp(signUpDto);
       return result;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException(error.message || 'Failed to sign up');
     }
   }
-
 
   @Post('/login')
   async login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
@@ -57,6 +57,7 @@ export class AdminsController {
       const result = await this.adminService.login(loginDto);
       return result;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException(error.message || 'Failed to log in');
     }
   }
@@ -67,6 +68,7 @@ export class AdminsController {
       const admins = await this.adminService.getAllAdmins();
       return admins;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get all admins');
     }
   }
@@ -77,6 +79,7 @@ export class AdminsController {
       const admin = await this.adminService.getAdminById(id);
       return admin;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException(error.message || 'Failed to get admin');
     }
   }
@@ -89,10 +92,10 @@ export class AdminsController {
       const admin = await this.adminService.addAdmin(adminData);
       return admin;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException(error.message || 'Failed to add admin');
     }
   }
-
 
   @Put(':id')
   async updateAdmin(
@@ -103,6 +106,7 @@ export class AdminsController {
       const admin = await this.adminService.updateAdmin(id, adminData);
       return admin;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException(error.message || 'Failed to update admin');
     }
   }
@@ -113,6 +117,7 @@ export class AdminsController {
       const result = await this.adminService.deleteAdmin(id);
       return result;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException(error.message || 'Failed to delete admin');
     }
   }
@@ -125,6 +130,7 @@ export class AdminsController {
         await this.restaurantsService.insertRestaurant(createRestaurantDto);
       return { id: generatedId };
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to add restaurant');
     }
   }
@@ -144,6 +150,7 @@ export class AdminsController {
       }
       return updatedRestaurant;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to update restaurant');
     }
   }
@@ -158,6 +165,7 @@ export class AdminsController {
       }
       return { message: 'Restaurant deleted successfully' };
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to delete restaurant');
     }
   }
@@ -168,6 +176,7 @@ export class AdminsController {
       const generatedId = await this.dishesService.insertDish(createDishDto);
       return { id: generatedId };
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to add dish');
     }
   }
@@ -189,6 +198,7 @@ export class AdminsController {
 
       return updatedDish;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to update dish');
     }
   }
@@ -204,6 +214,7 @@ export class AdminsController {
 
       return { message: 'Dish deleted successfully' };
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to delete dish');
     }
   }
@@ -215,6 +226,7 @@ export class AdminsController {
       const generatedId = await this.chefsService.insertChef(createChefDto);
       return { id: generatedId };
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to add chef');
     }
   }
@@ -236,6 +248,7 @@ export class AdminsController {
 
       return updatedChef;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to update chef');
     }
   }
@@ -251,6 +264,7 @@ export class AdminsController {
 
       return { message: 'Chef deleted successfully' };
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to delete chef');
     }
   }
@@ -266,6 +280,7 @@ export class AdminsController {
 
       return { message: 'User registered successfully', user: registeredUser };
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         'Login failed. Check your email and password.',
         HttpStatus.UNAUTHORIZED,
@@ -280,6 +295,7 @@ export class AdminsController {
 
       return { message: 'Login successful', user };
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         'Login failed. Check your email and password.',
         HttpStatus.UNAUTHORIZED,

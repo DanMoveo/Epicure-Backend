@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Logger,
   Param,
   Query,
 } from '@nestjs/common';
@@ -12,23 +13,22 @@ export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Get()
-  async getAllRestaurants() {
+  async getAllRestaurants(
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
+    @Query('sortBy') sortBy?: 'mostPopular' | 'highestRated',
+  ) {
     try {
-      const restaurants = await this.restaurantsService.getRestaurants();
-      return restaurants;
+      console.log(sortBy);
+      if (sortBy === 'mostPopular') {
+        const arr = await this.restaurantsService.getMostPopularRestaurants();
+        console.log(arr);
+        return arr;
+      }
+      return await this.restaurantsService.getRestaurants(page, pageSize);
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get all restaurants');
-    }
-  }
-
-  @Get('mostPopular')
-  async getMostPopularRestaurants() {
-    try {
-      const popularRestaurants =
-        await this.restaurantsService.getMostPopularRestaurants();
-      return popularRestaurants;
-    } catch (error) {
-      throw new BadRequestException('Failed to get most popular restaurants');
     }
   }
 
@@ -42,6 +42,7 @@ export class RestaurantsController {
       }
       return restaurant;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get restaurant');
     }
   }
@@ -53,6 +54,7 @@ export class RestaurantsController {
         await this.restaurantsService.getRestaurantsByChefName(chefName);
       return restaurants;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get restaurant');
     }
   }
@@ -70,6 +72,7 @@ export class RestaurantsController {
         );
       return restaurants;
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Failed to get restaurant');
     }
   }
