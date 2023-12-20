@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AdminSchema } from './admin.model';
-import { RestaurantsModule } from 'src/Restaurant/restaurants.module'; // Import the RestaurantsModule
+import { RestaurantsModule } from 'src/Restaurant/restaurants.module'; 
 import { AdminsController } from './Admins.controller';
 import { AdminsService } from './Admins.service';
 import { DishesModule } from 'src/Dish/dish.module';

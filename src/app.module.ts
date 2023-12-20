@@ -1,6 +1,12 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+  ValidationPipe,
+} from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
 import { RestaurantsModule } from './Restaurant/restaurants.module';
@@ -14,6 +20,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtMiddleware } from './shared/middleware/jwtMiddleware';
 import { JwtModule } from '@nestjs/jwt';
+// import { AuthModule } from './Auth/auth.module';
 
 @Module({
   imports: [
@@ -35,6 +42,7 @@ import { JwtModule } from '@nestjs/jwt';
     ChefsModule,
     UsersModule,
     AdminModule,
+    // AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -47,10 +55,14 @@ import { JwtModule } from '@nestjs/jwt';
   ],
 })
 // export class AppModule {}
-
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes('admins/restaurants');
+    consumer
+      .apply(JwtMiddleware)
+      .exclude(
+        { path: 'admins/login', method: RequestMethod.ALL },
+        { path: 'admins/signup', method: RequestMethod.ALL },
+      )
+      .forRoutes('admins/*');
   }
 }

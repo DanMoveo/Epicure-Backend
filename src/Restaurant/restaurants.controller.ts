@@ -2,13 +2,15 @@ import {
   BadRequestException,
   Controller,
   Get,
-  Logger,
   Param,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { RestaurantsService } from './restaurants.service';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('restaurants')
+@UseGuards(RolesGuard)
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 

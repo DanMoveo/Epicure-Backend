@@ -31,6 +31,7 @@ import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('admins')
 @UseGuards(RolesGuard)
+// TODO: Activate this guard & export the 'login' and 'register' to an outsidew service in a module named 'Auth'
 export class AdminsController {
   constructor(
     private readonly dishesService: DishesService,
@@ -59,17 +60,6 @@ export class AdminsController {
     } catch (error) {
       console.error(error);
       throw new BadRequestException(error.message || 'Failed to log in');
-    }
-  }
-
-  @Get()
-  async getAllAdmins() {
-    try {
-      const admins = await this.adminService.getAllAdmins();
-      return admins;
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException('Failed to get all admins');
     }
   }
 
