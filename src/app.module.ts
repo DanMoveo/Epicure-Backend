@@ -21,6 +21,7 @@ import { AppService } from './app.service';
 import { JwtMiddleware } from './shared/middleware/jwtMiddleware';
 import { JwtModule } from '@nestjs/jwt';
 // import { AuthModule } from './Auth/auth.module';
+import { AuthModule } from './Auth/auth.module';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { JwtModule } from '@nestjs/jwt';
     ChefsModule,
     UsersModule,
     AdminModule,
-    // AuthModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -54,15 +55,8 @@ import { JwtModule } from '@nestjs/jwt';
     },
   ],
 })
-// export class AppModule {}
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(JwtMiddleware)
-      .exclude(
-        { path: 'admins/login', method: RequestMethod.ALL },
-        { path: 'admins/signup', method: RequestMethod.ALL },
-      )
-      .forRoutes('admins/*');
+    consumer.apply(JwtMiddleware).forRoutes('admins/*');
   }
 }

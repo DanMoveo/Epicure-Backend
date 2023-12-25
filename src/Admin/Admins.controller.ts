@@ -17,8 +17,7 @@ import {
   CreateRestaurantDto,
   UpdateRestaurantDto,
 } from '../Restaurant/restaurant.dto';
-import { Admin } from './admin.model';
-import { LoginDto, SignUpDto } from './Admin.dto';
+import { LoginDto, SignUpDto } from '../Auth/auth.dto';
 import { ChefsService } from 'src/Chef/chefs.service';
 import { UserService } from 'src/User/user.service';
 import { CreateDishDto, UpdateDishDto } from 'src/Dish/dishes.dto';
@@ -28,10 +27,11 @@ import { DishesService } from 'src/Dish/dishes.service';
 import { Role } from 'src/shared/enums/role.enum';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Admin } from './Admins.model';
 
 @Controller('admins')
 @UseGuards(RolesGuard)
-// TODO: Activate this guard & export the 'login' and 'register' to an outsidew service in a module named 'Auth'
+@Roles(Role.SuperAdmin)
 export class AdminsController {
   constructor(
     private readonly dishesService: DishesService,
@@ -40,28 +40,6 @@ export class AdminsController {
     private readonly chefsService: ChefsService,
     private readonly userService: UserService,
   ) {}
-
-  @Post('/signup')
-  async signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
-    try {
-      const result = await this.adminService.signUp(signUpDto);
-      return result;
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException(error.message || 'Failed to sign up');
-    }
-  }
-
-  @Post('/login')
-  async login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    try {
-      const result = await this.adminService.login(loginDto);
-      return result;
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException(error.message || 'Failed to log in');
-    }
-  }
 
   @Get(':id')
   async getAdmin(@Param('id') id: string): Promise<Admin | null> {
@@ -113,7 +91,6 @@ export class AdminsController {
   }
 
   @Post('restaurants')
-  @Roles(Role.SuperAdmin)
   async addRestaurant(@Body() createRestaurantDto: CreateRestaurantDto) {
     try {
       const generatedId =

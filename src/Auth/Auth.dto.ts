@@ -1,26 +1,29 @@
-// // auth.dto.ts
-// import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+// admin.dto.ts
 
-// export class SignUpDto {
-//   @IsNotEmpty()
-//   @IsString()
-//   name: string;
+import { IsString, IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
-//   @IsNotEmpty()
-//   @IsEmail()
-//   email: string;
+export class SignUpDto {
+  @IsNotEmpty()
+  @IsString()
+  readonly name: string;
 
-//   @IsNotEmpty()
-//   @IsString()
-//   password: string;
-// }
+  @IsNotEmpty()
+  @IsEmail({}, { message: 'Please enter a valid email address' }) 
+  readonly email: string;
 
-// export class LoginDto {
-//   @IsNotEmpty()
-//   @IsEmail()
-//   email: string;
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  readonly password: string;
+}
 
-//   @IsNotEmpty()
-//   @IsString()
-//   password: string;
-// }
+export class LoginDto {
+  @IsNotEmpty()
+  @IsEmail({}, { message: 'please enter correct email' })
+  readonly email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  readonly password: string;
+}
